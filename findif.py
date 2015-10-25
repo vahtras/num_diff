@@ -14,7 +14,6 @@ def grad(f, delta=1e-5):
                 gradf_x = (f(x + delta/2, y) - f(x - delta/2, y))/delta
                 gradf_y = (f(x, y + delta/2) - f(x, y - delta/2))/delta
                 return gradf_x, gradf_y
-        
     return grad_f
 
 def ndgrad(f, delta=1e-5):
@@ -31,7 +30,6 @@ def ndgrad(f, delta=1e-5):
             fm = f(x)
             xi += delta/2
             grad_val[i] = (fp - fm)/delta
-
         return grad_val
     return grad_f
 
