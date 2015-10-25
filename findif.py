@@ -12,13 +12,17 @@ def grad(f, delta=1e-5):
             else:
                 if type(x) == numpy.ndarray:
                     grad_val = numpy.zeros(x.shape)
-                    for i in range(len(x)):
-                        x[i] += delta/2
+                    it = numpy.nditer(x, op_flags=['readwrite'], flags=['multi_index'])
+                    print dir(it)
+                    for xi in it:
+                        i = it.multi_index
+                        xi += delta/2
                         fp = f(x)
-                        x[i] -= delta
-                        fm  = f(x)
-                        x[i] += delta/2
+                        xi -= delta
+                        fm = f(x)
+                        xi += delta/2
                         grad_val[i] = (fp - fm)/delta
+
                     return grad_val
                         
 

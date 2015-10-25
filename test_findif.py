@@ -25,9 +25,15 @@ class NewTest(unittest.TestCase):
     def test_2_array(self):
         def f(x_arr):
             return numpy.dot(x_arr, x_arr)
-
         x = numpy.array((3., 4.))
         numpy.testing.assert_allclose(grad(f)(x), (6, 8))
+
+    def test_2_matrix(self):
+        def f(x):
+            return x[0, 0]**2 + x[1, 1]**2 - x[0, 1]*x[1, 0]
+        x = numpy.array([[1., 2.], [3., 4.]])
+        numpy.testing.assert_allclose(grad(f)(x), [[2, -3], [-2, 8]])
+
             
         
 
