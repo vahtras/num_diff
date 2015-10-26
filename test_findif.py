@@ -34,6 +34,23 @@ class NewTest(unittest.TestCase):
         x = numpy.array([[1., 2.], [3., 4.]])
         numpy.testing.assert_allclose(ndgrad(f)(x), [[2, -3], [-2, 8]])
 
+    def test_diff_class_method(self):
+        class A(object):
+            def __init__(self, data):
+                self.x = data
+
+            def exe(self):
+                return self.x[0, 0]**2 + self.x[1, 1]**2 - self.x[0, 1]*self.x[1, 0]
+
+        a_instance = A(numpy.array([[1., 2.], [3., 4.]]))
+                
+        def f(x):
+            a = A(x)
+            return a.exe()
+
+        x = numpy.array([[1., 2.], [3., 4.]])
+        numpy.testing.assert_allclose(ndgrad(f)(x), [[2, -3], [-2, 8]])
+
             
         
 
