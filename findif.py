@@ -77,7 +77,8 @@ def ndhess(f, delta=DELTA):
                 fmp = f(x)
                 xi += delta/2
                 xj -= delta/2
-                hess_val[i, j] = (fpp + fmm - fpm - fmp)/delta**2
+                hess_val[i + j] = (fpp + fmm - fpm - fmp)/delta**2
+                print hess_val
         return hess_val
     return hess_f
 

@@ -45,11 +45,18 @@ class NewTest(unittest.TestCase):
         x = numpy.array((3., 4.))
         numpy.testing.assert_allclose(ndhess(f)(x), ((2, 0),(0, 2)), rtol=10*DELTA, atol=10*DELTA)
 
-    def test_2_matrix(self):
+    def test_2_matrix_gradient(self):
         def f(x):
             return x[0, 0]**2 + x[1, 1]**2 - x[0, 1]*x[1, 0]
         x = numpy.array([[1., 2.], [3., 4.]])
         numpy.testing.assert_allclose(ndgrad(f)(x), [[2, -3], [-2, 8]])
+
+    def test_2_matrix_hessian(self):
+        def f(x):
+            return x[0, 0]**2 + x[1, 1]**2 - x[0, 1]*x[1, 0]
+        x = numpy.array([[1., 2.], [3., 4.]])
+        ref_hess = numpy.array([2, 0, 0, 0, 0, 0, -1, 0, 0, -1, 0, 0, 0, 0, 0, 2]).reshape((2,2,2,2))
+        numpy.testing.assert_allclose(ndhess(f)(x), ref_hess, rtol=10*DELTA, atol=10*DELTA)
 
     def test_diff_class_method(self):
         class A(object):
