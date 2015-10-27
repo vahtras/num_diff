@@ -87,6 +87,25 @@ class NewTest(unittest.TestCase):
         a_instance = A(x)
         numpy.testing.assert_allclose(clgrad(a_instance, 'exe', 'y')(None), [[1, 0], [-2, 4]])
 
+    def test_diff_class_submethod(self):
+        class A(object):
+            def __init__(self, data):
+                self.x = data
+                self.y = data
+
+            def exe(self, dummy=None):
+                return self.x[0, 0]*self.y[0, 0] + self.x[1, 1]*self.y[1, 1] - self.x[0, 1]*self.y[1, 0]
+
+
+        class B(object):
+            def __init__(self, data):
+                self.a = A(data)
+
+                
+        x = numpy.array([[1., 2.], [3., 4.]])
+        b_instance = B(x)
+        numpy.testing.assert_allclose(clgrad(b_instance, 'a.exe', 'a.y')(None), [[1, 0], [-2, 4]])
+
             
         
 
