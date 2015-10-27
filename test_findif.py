@@ -71,7 +71,6 @@ class NewTest(unittest.TestCase):
         a_instance = A(x)
         numpy.testing.assert_allclose(clgrad(a_instance, 'exe', 'x')(), [[2, -3], [-2, 8]])
 
-    @unittest.skip('wait')
     def test_diff_class_method_hessian(self):
         class A(object):
             def __init__(self, data):
@@ -84,7 +83,7 @@ class NewTest(unittest.TestCase):
         x = numpy.array([[1., 2.], [3., 4.]])
         ref_hess = numpy.array([2, 0, 0, 0, 0, 0, -1, 0, 0, -1, 0, 0, 0, 0, 0, 2]).reshape((2,2,2,2))
         a_instance = A(x)
-        numpy.testing.assert_allclose(clhess(a_instance, 'exe', 'x')(), ref_hess)
+        numpy.testing.assert_allclose(clhess(a_instance, 'exe', 'x')(), ref_hess, rtol=10*DELTA, atol=10*DELTA)
 
     def test_diff_class_method_with_args(self):
         class A(object):

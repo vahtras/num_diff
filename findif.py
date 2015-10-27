@@ -99,10 +99,8 @@ def clgrad(obj, exe, arg, delta=DELTA):
     return grad_f
 
 def clhess(obj, exe, arg, delta=DELTA):
-    import pdb; pdb.set_trace()
     f, x = get_method_and_copy_of_attribute(obj, exe, arg)
     def hess_f(*args, **kwargs):
-        x, = args
         hess_val = numpy.zeros(x.shape + x.shape)
         it = numpy.nditer(x, op_flags=['readwrite'], flags=['multi_index'])
         for xi in it:
@@ -112,13 +110,13 @@ def clhess(obj, exe, arg, delta=DELTA):
                 j = jt.multi_index
                 xi += delta/2
                 xj += delta/2
-                fpp = f(x)
+                fpp = f(*args, **kwargs)
                 xj -= delta
-                fpm = f(x)
+                fpm = f(*args, **kwargs)
                 xi -= delta
-                fmm = f(x)
+                fmm = f(*args, **kwargs)
                 xj += delta
-                fmp = f(x)
+                fmp = f(*args, **kwargs)
                 xi += delta/2
                 xj -= delta/2
                 hess_val[i + j] = (fpp + fmm - fpm - fmp)/delta**2
