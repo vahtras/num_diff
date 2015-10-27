@@ -1,7 +1,7 @@
 import unittest
 import numpy
 
-from findif import grad, ndgrad, clgrad
+from findif import grad, ndgrad, clgrad, hessian, DELTA, ndhess
 
 class NewTest(unittest.TestCase):
 
@@ -11,22 +11,39 @@ class NewTest(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def test_scalar(self):
+    def test_scalar_gradient(self):
         def f(x):
             return x**2
         self.assertAlmostEqual(grad(f)(3), 6)
 
-    def test_2d(self):
+    def test_scalar_hessian(self):
+        def f(x):
+            return x**2
+        self.assertAlmostEqual(hessian(f)(3), 2, delta=10*DELTA)
+
+    def test_2d_gradient(self):
         def f(x, y):
             return x**2 + y**2
         gradf = grad(f)
         numpy.testing.assert_allclose(gradf(3, 4), (6, 8))
 
-    def test_2_array(self):
+    def test_2d_hessian(self):
+        def f(x, y):
+            return x**2 + y**2
+        hessf = hessian(f)
+        numpy.testing.assert_allclose(hessf(3, 4), (2, 0, 2), rtol=10*DELTA)
+
+    def test_2_array_gradient(self):
         def f(x_arr):
             return numpy.dot(x_arr, x_arr)
         x = numpy.array((3., 4.))
         numpy.testing.assert_allclose(ndgrad(f)(x), (6, 8))
+
+    def test_2_array_hessian(self):
+        def f(x_arr):
+            return numpy.dot(x_arr, x_arr)
+        x = numpy.array((3., 4.))
+        numpy.testing.assert_allclose(ndhess(f)(x), ((2, 0),(0, 2)), rtol=10*DELTA, atol=10*DELTA)
 
     def test_2_matrix(self):
         def f(x):
