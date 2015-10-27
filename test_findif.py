@@ -1,7 +1,7 @@
 import unittest
 import numpy
 
-from findif import grad, ndgrad, clgrad, hessian, DELTA, ndhess
+from findif import DELTA, grad, ndgrad, clgrad, hessian, ndhess, clhess
 
 class NewTest(unittest.TestCase):
 
@@ -58,7 +58,7 @@ class NewTest(unittest.TestCase):
         ref_hess = numpy.array([2, 0, 0, 0, 0, 0, -1, 0, 0, -1, 0, 0, 0, 0, 0, 2]).reshape((2,2,2,2))
         numpy.testing.assert_allclose(ndhess(f)(x), ref_hess, rtol=10*DELTA, atol=10*DELTA)
 
-    def test_diff_class_method(self):
+    def test_diff_class_method_gradient(self):
         class A(object):
             def __init__(self, data):
                 self.x = data
@@ -70,6 +70,21 @@ class NewTest(unittest.TestCase):
         x = numpy.array([[1., 2.], [3., 4.]])
         a_instance = A(x)
         numpy.testing.assert_allclose(clgrad(a_instance, 'exe', 'x')(), [[2, -3], [-2, 8]])
+
+    @unittest.skip('wait')
+    def test_diff_class_method_hessian(self):
+        class A(object):
+            def __init__(self, data):
+                self.x = data
+
+            def exe(self):
+                return self.x[0, 0]**2 + self.x[1, 1]**2 - self.x[0, 1]*self.x[1, 0]
+
+                
+        x = numpy.array([[1., 2.], [3., 4.]])
+        ref_hess = numpy.array([2, 0, 0, 0, 0, 0, -1, 0, 0, -1, 0, 0, 0, 0, 0, 2]).reshape((2,2,2,2))
+        a_instance = A(x)
+        numpy.testing.assert_allclose(clhess(a_instance, 'exe', 'x')(), ref_hess)
 
     def test_diff_class_method_with_args(self):
         class A(object):
