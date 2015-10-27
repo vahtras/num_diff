@@ -39,13 +39,13 @@ class NewTest(unittest.TestCase):
             def __init__(self, data):
                 self.x = data
 
-            def exe(self, dummy=None):
+            def exe(self):
                 return self.x[0, 0]**2 + self.x[1, 1]**2 - self.x[0, 1]*self.x[1, 0]
 
                 
         x = numpy.array([[1., 2.], [3., 4.]])
         a_instance = A(x)
-        numpy.testing.assert_allclose(clgrad(a_instance, 'exe', 'x')(x), [[2, -3], [-2, 8]])
+        numpy.testing.assert_allclose(clgrad(a_instance, 'exe', 'x')(), [[2, -3], [-2, 8]])
 
             
         
