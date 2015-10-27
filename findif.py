@@ -33,9 +33,14 @@ def ndgrad(f, delta=DELTA):
         return grad_val
     return grad_f
 
-def clgrad(obj, exe, arg, delta=DELTA):
+def get_method_and_copy_of_attribute(obj, exe, arg):
+    setattr(obj, arg, getattr(obj, arg).copy())
     f = getattr(obj, exe)
     x = getattr(obj, arg)
+    return f, x
+
+def clgrad(obj, exe, arg, delta=DELTA):
+    f, x = get_method_and_copy_of_attribute(obj, exe, arg)
     def grad_f(*args, **kwargs):
         grad_val = numpy.zeros(x.shape)
         it = numpy.nditer(x, op_flags=['readwrite'], flags=['multi_index'])
