@@ -1,7 +1,7 @@
 import unittest
 import numpy
 
-from findif import grad, ndgrad
+from findif import grad, ndgrad, clgrad
 
 class NewTest(unittest.TestCase):
 
@@ -39,17 +39,13 @@ class NewTest(unittest.TestCase):
             def __init__(self, data):
                 self.x = data
 
-            def exe(self):
+            def exe(self, dummy=None):
                 return self.x[0, 0]**2 + self.x[1, 1]**2 - self.x[0, 1]*self.x[1, 0]
 
-        a_instance = A(numpy.array([[1., 2.], [3., 4.]]))
                 
-        def f(x):
-            a = A(x)
-            return a.exe()
-
         x = numpy.array([[1., 2.], [3., 4.]])
-        numpy.testing.assert_allclose(ndgrad(f)(x), [[2, -3], [-2, 8]])
+        a_instance = A(x)
+        numpy.testing.assert_allclose(clgrad(a_instance, 'exe', 'x')(x), [[2, -3], [-2, 8]])
 
             
         
