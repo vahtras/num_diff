@@ -139,7 +139,7 @@ class NewTest(unittest.TestCase):
         a_instance = A(x)
         numpy.testing.assert_allclose(clhess(a_instance, 'exe', 'x')(None), ref_hess, rtol=10*DELTA, atol=10*DELTA)
 
-    def test_diff_class_method_unique(self):
+    def test_diff_class_method_gradient_unique(self):
         class A(object):
             def __init__(self, data):
                 self.x = data
@@ -153,7 +153,22 @@ class NewTest(unittest.TestCase):
         a_instance = A(x)
         numpy.testing.assert_allclose(clgrad(a_instance, 'exe', 'y')(None), [[1, 0], [-2, 4]])
 
-    def test_diff_class_submethod(self):
+    def test_diff_class_method_hessian_unique(self):
+        class A(object):
+            def __init__(self, data):
+                self.x = data
+                self.y = data
+
+            def exe(self, dummy=None):
+                return self.x[0, 0]*self.y[0, 0] + self.x[1, 1]*self.y[1, 1] - self.x[0, 1]*self.y[1, 0]
+
+                
+        x = numpy.array([[1., 2.], [3., 4.]])
+        ref_hess = numpy.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).reshape((2,2,2,2))
+        a_instance = A(x)
+        numpy.testing.assert_allclose(clhess(a_instance, 'exe', 'x')(None), ref_hess, rtol=10*DELTA, atol=10*DELTA)
+
+    def test_diff_class_submethod_gradient(self):
         class A(object):
             def __init__(self, data):
                 self.x = data
@@ -171,6 +186,26 @@ class NewTest(unittest.TestCase):
         x = numpy.array([[1., 2.], [3., 4.]])
         b_instance = B(x)
         numpy.testing.assert_allclose(clgrad(b_instance, 'a.exe', 'a.y')(None), [[1, 0], [-2, 4]])
+
+    def test_diff_class_submethod_hessian(self):
+        class A(object):
+            def __init__(self, data):
+                self.x = data
+                self.y = data
+
+            def exe(self, dummy=None):
+                return self.x[0, 0]*self.y[0, 0] + self.x[1, 1]*self.y[1, 1] - self.x[0, 1]*self.y[1, 0]
+
+
+        class B(object):
+            def __init__(self, data):
+                self.a = A(data)
+
+                
+        x = numpy.array([[1., 2.], [3., 4.]])
+        ref_hess = numpy.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).reshape((2,2,2,2))
+        b_instance = B(x)
+        numpy.testing.assert_allclose(clhess(b_instance, 'a.exe', 'a.y')(None), ref_hess, rtol=10*DELTA, atol=10*DELTA)
 
             
         
