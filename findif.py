@@ -22,7 +22,6 @@ def ndgrad(f, delta=DELTA):
         x, = args
         grad_val = numpy.zeros(x.shape)
         it = numpy.nditer(x, op_flags=['readwrite'], flags=['multi_index'])
-        print dir(it)
         for xi in it:
             i = it.multi_index
             xi += delta/2
