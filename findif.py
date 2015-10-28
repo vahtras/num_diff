@@ -121,3 +121,29 @@ def clhess(obj, exe, arg, delta=DELTA):
                 hess_val[i + j] = (fpp + fmm - fpm - fmp)/delta**2
         return hess_val
     return hess_f
+
+def clmixhess(obj, exe, arg1, arg2, delta=DELTA):
+    f, x = get_method_and_copy_of_attribute(obj, exe, arg1)
+    _, y = get_method_and_copy_of_attribute(obj, exe, arg2)
+    def hess_f(*args, **kwargs):
+        hess_val = numpy.zeros(x.shape + y.shape)
+        it = numpy.nditer(x, op_flags=['readwrite'], flags=['multi_index'])
+        for xi in it:
+            i = it.multi_index
+            jt = numpy.nditer(y, op_flags=['readwrite'], flags=['multi_index'])
+            for yj in jt:
+                j = jt.multi_index
+                xi += delta/2
+                yj += delta/2
+                fpp = f(*args, **kwargs)
+                yj -= delta
+                fpm = f(*args, **kwargs)
+                xi -= delta
+                fmm = f(*args, **kwargs)
+                yj += delta
+                fmp = f(*args, **kwargs)
+                xi += delta/2
+                yj -= delta/2
+                hess_val[i + j] = (fpp + fmm - fpm - fmp)/delta**2
+        return hess_val
+    return hess_f
