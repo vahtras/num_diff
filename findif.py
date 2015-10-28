@@ -1,8 +1,26 @@
+"""
+General finite difference utlity for generation of finite difference first
+and second derivative functions given a scalar input function
+
+
+Functions:
+
+    grad: for ordinary scalar functions of one or two variables
+    ndgrad: for scalar functions of numpy array objects
+    clgrad: for derivatives of a class method with respect to an attribute
+"""
+
 import numpy
-from attributes import get_method_and_copy_of_attribute
+from .attributes import get_method_and_copy_of_attribute
 DELTA = 1e-5
 
 def grad(f, delta=DELTA):
+    """
+    Returns numerical gradient function of given input function
+    Input: f, scalar function of one or two variables
+           delta(optional), finite difference step
+    Output: gradient function object
+    """
     def grad_f(*args, **kwargs):
         if len(args) == 1:
             x, = args
@@ -19,6 +37,12 @@ def grad(f, delta=DELTA):
     return grad_f
 
 def hessian(f, delta=DELTA):
+    """
+    Returns numerical hessian function of given input function
+    Input: f, scalar function of one or two variables
+           delta(optional), finite difference step
+    Output: hessian function object
+    """
     def hessian_f(*args, **kwargs):
         if len(args) == 1:
             x, = args
@@ -29,18 +53,28 @@ def hessian(f, delta=DELTA):
         elif len(args) == 2:
             x, y = args
             if type(x) in [float, int] and type(y) in [float, int]:
-                hess_xx = (f(x + delta, y) + f(x - delta, y) - 2*f(x, y))/delta**2
-                hess_yy = (f(x, y + delta) + f(x, y - delta) - 2*f(x, y))/delta**2
+                hess_xx = (
+                    f(x + delta, y) + f(x - delta, y) - 2*f(x, y)
+                    )/delta**2
+                hess_yy = (
+                    f(x, y + delta) + f(x, y - delta) - 2*f(x, y)
+                    )/delta**2
                 hess_xy = (
-                    f(x+delta/2, y+delta/2) 
-                  + f(x-delta/2, y-delta/2) 
-                  - f(x+delta/2, y-delta/2) 
-                  - f(x-delta/2, y+delta/2)
+                    + f(x+delta/2, y+delta/2)
+                    + f(x-delta/2, y-delta/2)
+                    - f(x+delta/2, y-delta/2)
+                    - f(x-delta/2, y+delta/2)
                     )/delta**2
                 return hess_xx, hess_xy, hess_yy
     return hessian_f
 
 def ndgrad(f, delta=DELTA):
+    """
+    Returns numerical gradient function of given input function
+    Input: f, scalar function of an numpy array object
+           delta(optional), finite difference step
+    Output: gradient function object
+    """
     def grad_f(*args, **kwargs):
         x, = args
         grad_val = numpy.zeros(x.shape)
@@ -57,6 +91,12 @@ def ndgrad(f, delta=DELTA):
     return grad_f
 
 def ndhess(f, delta=DELTA):
+    """
+    Returns numerical hessian function of given input function
+    Input: f, scalar function of an numpy array object
+           delta(optional), finite difference step
+    Output: hessian function object
+    """
     def hess_f(*args, **kwargs):
         x, = args
         hess_val = numpy.zeros(x.shape + x.shape)
@@ -82,6 +122,15 @@ def ndhess(f, delta=DELTA):
     return hess_f
 
 def clgrad(obj, exe, arg, delta=DELTA):
+    """
+    Returns numerical gradient function of given class method
+    with respect to a class attribute
+    Input: obj, general object
+           exe (str), name of object method
+           arg (str), name of object atribute
+           delta(float, optional), finite difference step
+    Output: gradient function object
+    """
     f, x = get_method_and_copy_of_attribute(obj, exe, arg)
     def grad_f(*args, **kwargs):
         grad_val = numpy.zeros(x.shape)
@@ -98,6 +147,15 @@ def clgrad(obj, exe, arg, delta=DELTA):
     return grad_f
 
 def clhess(obj, exe, arg, delta=DELTA):
+    """
+    Returns numerical hessian function of given class method
+    with respect to a class attribute
+    Input: obj, general object
+           exe (str), name of object method
+           arg (str), name of object atribute
+           delta(float, optional), finite difference step
+    Output: Hessian function object
+    """
     f, x = get_method_and_copy_of_attribute(obj, exe, arg)
     def hess_f(*args, **kwargs):
         hess_val = numpy.zeros(x.shape + x.shape)
@@ -123,6 +181,16 @@ def clhess(obj, exe, arg, delta=DELTA):
     return hess_f
 
 def clmixhess(obj, exe, arg1, arg2, delta=DELTA):
+    """
+    Returns numerical mixed Hessian function of given class method
+    with respect to two class attributes
+    Input: obj, general object
+           exe (str), name of object method
+           arg1(str), name of object attribute
+           arg2(str), name of object attribute
+           delta(float, optional), finite difference step
+    Output: Hessian function object
+    """
     f, x = get_method_and_copy_of_attribute(obj, exe, arg1)
     _, y = get_method_and_copy_of_attribute(obj, exe, arg2)
     def hess_f(*args, **kwargs):
