@@ -1,5 +1,5 @@
 import numpy
-from attributes import *
+from attributes import get_method_and_copy_of_attribute
 DELTA = 1e-5
 
 def grad(f, delta=DELTA):
@@ -78,7 +78,6 @@ def ndhess(f, delta=DELTA):
                 xi += delta/2
                 xj -= delta/2
                 hess_val[i + j] = (fpp + fmm - fpm - fmp)/delta**2
-                print hess_val
         return hess_val
     return hess_f
 
@@ -120,6 +119,5 @@ def clhess(obj, exe, arg, delta=DELTA):
                 xi += delta/2
                 xj -= delta/2
                 hess_val[i + j] = (fpp + fmm - fpm - fmp)/delta**2
-                print hess_val
         return hess_val
     return hess_f

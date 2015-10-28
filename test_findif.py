@@ -1,7 +1,8 @@
 import unittest
 import numpy
 
-from findif import DELTA, grad, ndgrad, clgrad, hessian, ndhess, clhess
+from findif import *
+from attributes import *
 
 class NewTest(unittest.TestCase):
 
@@ -207,6 +208,104 @@ class NewTest(unittest.TestCase):
         b_instance = B(x)
         numpy.testing.assert_allclose(clhess(b_instance, 'a.exe', 'a.y')(None), ref_hess, rtol=10*DELTA, atol=10*DELTA)
 
+    def test_CTC(self):
+
+        from util import full
+
+        class Nod(object):
+            #
+            #
+            # Class global variables
+            #
+            S = full.init([[1., .1], [.1, 1.]])
+            C = full.init([[.7, .6], [.6, -.7]])
+
+            def __init__(self, astring, bstring, C=None, tmpdir='/tmp'):
+                #
+                # Input: list of orbital indices for alpha and beta strings
+                #
+                self.a = astring
+                self.b = bstring
+
+            def __mul__(self, other):
+                #
+                # Return overlap of two Slater determinants <K|L>
+                # calculated as matrix determinant of overlap
+                # of orbitals in determinants
+                # det(S) = det S(alpha)*det S(beta)
+                #
+                #
+                if len(self.a) != len(other.a) or len(self.b) != len(other.b):
+                    return 0
+
+                (CKa, CKb) = self.orbitals()
+                (CLa, CLb) = other.orbitals()
+                #
+                # alpha
+                #
+                Det = 1
+                if CKa is not None:
+                    SKLa = CKa.T*Nod.S*CLa
+                    Deta = SKLa.det()
+                    Det *= Deta
+                #
+                # beta
+                #
+                if CKb is not None:
+                    SKLb = CKb.T*Nod.S*CLb
+                    Detb = SKLb.det()
+                    Det *= Detb
+                #
+                return Det
+
+            def orbitals(self):
+                CUa = None
+                CUb = None
+                if self.a: CUa = self.C[:, self.a]
+                if self.b: CUb = self.C[:, self.b]
+                return (CUa, CUb)
+
+
+        class NodPair(object):
+            """Non-orthogonal determinant pairs"""
+
+            def __init__(self, K, L):
+                self.K = K
+                self.L = L
+
+            def __str__(self):
+                return "<%s|...|%s>" % (self.K, self.L)
+
+            def overlap(self):
+                return self.K*self.L
+
+            def right_orbital_gradient(self):
+                """Rhs derivative <K|dL/dC(mu, m)>"""
+                DmoKL = Dmo(self.K, self.L)
+                CK = self.K.orbitals()
+
+                KdL = full.matrix(Nod.C.shape)
+                if self.K(0):
+                    KdLa = Nod.S*CK[0]*DmoKL[0]*self.overlap()
+                    KdLa.scatteradd(KdL, columns=self.L(0))
+                if self.K(1):
+                    KdLb = Nod.S*CK[1]*DmoKL[1]*self.overlap()
+                    KdLb.scatteradd(KdL, columns=self.L(1))
+                
+                return KdL
+
+        KL = NodPair(Nod([0], [0]), Nod([0], [0]))
+
+        numpy.testing.assert_allclose(clgrad(KL, 'overlap', 'L.C')(), [[1.41968, 0.0], [1.25156, 0.0]])
+        reset_attribute(KL, 'L.C')
+        #
+        # This illustrates that when <K| and |L> are the same object, replacing L.C with a copy will
+        # do the same for |K> and the numerical difference will be on the whole. How to fix?
+        # Somehow replace KL.L with a copy
+        #
+        a0b0 = Nod([0], [0])
+        KL = NodPair(a0b0, a0b0)
+        numpy.testing.assert_allclose(clgrad(KL, 'overlap', 'L.C')()/2, [[1.41968, 0.0], [1.25156, 0.0]])
             
         
 
