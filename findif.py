@@ -12,7 +12,7 @@ Functions:
 
 import numpy
 from .attributes import get_method_and_copy_of_attribute
-DELTA = 1e-5
+DELTA = 5e-5
 
 def grad(f, delta=DELTA):
     """
