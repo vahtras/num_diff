@@ -76,15 +76,15 @@ def ndgrad(f, delta=DELTA):
     Output: gradient function object
     """
     def grad_f(*args, **kwargs):
-        x, = args
+        x = args[0]
         grad_val = numpy.zeros(x.shape)
         it = numpy.nditer(x, op_flags=['readwrite'], flags=['multi_index'])
         for xi in it:
             i = it.multi_index
             xi += delta/2
-            fp = f(x)
+            fp = f(*args, **kwargs)
             xi -= delta
-            fm = f(x)
+            fm = f(*args, **kwargs)
             xi += delta/2
             grad_val[i] = (fp - fm)/delta
         return grad_val
