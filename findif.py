@@ -98,7 +98,7 @@ def ndhess(f, delta=DELTA):
     Output: hessian function object
     """
     def hess_f(*args, **kwargs):
-        x, = args
+        x = args[0]
         hess_val = numpy.zeros(x.shape + x.shape)
         it = numpy.nditer(x, op_flags=['readwrite'], flags=['multi_index'])
         for xi in it:
@@ -108,13 +108,13 @@ def ndhess(f, delta=DELTA):
                 j = jt.multi_index
                 xi += delta/2
                 xj += delta/2
-                fpp = f(x)
+                fpp = f(*args, **kwargs)
                 xj -= delta
-                fpm = f(x)
+                fpm = f(*args, **kwargs)
                 xi -= delta
-                fmm = f(x)
+                fmm = f(*args, **kwargs)
                 xj += delta
-                fmp = f(x)
+                fmp = f(*args, **kwargs)
                 xi += delta/2
                 xj -= delta/2
                 hess_val[i + j] = (fpp + fmm - fpm - fmp)/delta**2
